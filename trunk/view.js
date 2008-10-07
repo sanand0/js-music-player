@@ -16,7 +16,7 @@ var View = {
 
     // song('movie~song'): Converts it to <div class='play'><a class='song'>song</a> | <a class='movie'>movie</a></div>
     song: function(str) {
-        var ms = str.split('~'),
+        var ms = str.replace('"', '&quot;').split('~'),
             url = '/' + DB.lang + '/' + str + '/play" target="newsong';
         return '<div class="play" song="' + str + '">' +
                 (ms[1] ? '<a class="getsongs" href="#">' + ms[0] + '</a> | <a class="song" href="' + url + '">' + ms[1] + '</a>'
@@ -27,7 +27,7 @@ var View = {
     // movie('movie~year~composer~lyrics~actor'): Converts it to <div class='play'><a class='movie'>movie</a> | <a class='year'>year</a> | <a class='music'>composer</a> | ...</div>
     movie: function(str) {
         var myd = str.split('~');
-        return '<div ><a href="#" class="getsongs">'    + myd[0] + '</a>' +
+        return '<div class="movie-info"><a href="#" class="getsongs">'    + myd[0] + '</a>' +
             (myd[1] ? ' | <a href="#" class="year">'    + myd[1] + '</a>' : '') +
             (myd[2] ? ' | <a href="#" class="music">'   + myd[2] + '</a>' : '') +
             (myd[3] ? ' | <a href="#" class="lyrics">'  + myd[3] + '</a>' : '') +
@@ -132,7 +132,7 @@ var View = {
         offset.top += target.height();
         $('#Star, #Info').attr('song', song);                                                               // Set the HREFs directly, to avoid popup blockers
         $('#Download'   ).attr('href', '/' + DB.lang + '/' + euc(song) + '/download');
-        $('#Popup'      ).attr('href', '/' + DB.lang + '/' + euc(song) + '/play');
+        $('#Popup'      ).attr('href', Player.cache[song].html.shift() || '/' + DB.lang + '/' + euc(song) + '/play');
         $('#Mail'       ).attr('href', '/mplayer-mail.html?lang=' + DB.lang + '&movie=' + euc(ms[0]) + '&song=' + euc(ms[1]));
         $('#menu').css(offset).show();
         var that = this;
