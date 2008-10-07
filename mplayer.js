@@ -56,8 +56,8 @@ function init() {
         if (Player.hasReal && !$(e.target).is('input,textarea') && !e.ctrlKey && !e.altKey && !e.metaKey) {
             var code = e.charCode || e.keyCode;
             if (code ==  80 || code == 112) { View.playpause(); e.preventDefault(); }
-            if (code ==  43 || code ==  61) { Player.vol(10);   e.preventDefault(); }
-            if (code ==  45 || code ==  95) { Player.vol(-10);  e.preventDefault(); }
+            if (code ==  43 || code ==  61) { Player.vol(0.20);   e.preventDefault(); }
+            if (code ==  45 || code ==  95) { Player.vol(-0.20);  e.preventDefault(); }
             if (code ==  46 || code ==  62) { Player.seek(10);  e.preventDefault(); }
             if (code ==  44 || code ==  60) { Player.seek(-10); e.preventDefault(); }
             if (code ==  27)                { View.hideMenu(); }
@@ -98,8 +98,12 @@ function MPlayer(lang) {
     if (!DB.mp3) {
         $.get('/songs/' + DB.lang + '.movie.jsz', function(s) { DB.loadmovie(s); });
         if (DB.lang != 'carnatic') {
-            $.getJSON('http://www.s-anand.net/e/xpath.php?url=http://www.musicindiaonline.com/music/ut/s/' + (pop[lang] || lang) + '/100/&xpath=//table//td[span][a] song->./span/a[1] movie->./a link->./span/a[1]/@href&alt=json-in-script&callback=?', function(data) {
-                $.each(data, function(i, v) { $('#popular .songs').append(View.song(data[i].movie.s(/\s*\(\d\d*\)\s*/, '') + '~' + v.song)); });
+            $.getJSON('/db/song/popular.' + lang, function(data) {
+                $.each(data, function(i, v) {
+                    var movie = v.movie.s(/\s*\(\d\d*\)\s*/, ''), ms = movie + '~' + v.song;
+                    $('#popular .songs').append(View.song(ms));
+                    Player.cache[ms] = { movie: movie, song: v.song, html: [v.link], real: [], lyrics: [] };
+                });
                 if (!document.location.hash) { $('#popular').showTab(); }
             });
         }
@@ -118,10 +122,6 @@ onErr(function(obj, fn, err, args) {
 init();
 
 /*
-    TODO: Trap Realplayer error messages
-    TODO: Why does the player keep stopping...? And why does it play the current song while the .current has moved to the next song? Something weird...
-    TODO: Play / Pause should jump around so much
-
     Notes:
     # Do NOT do a setInterval to check document.location.hash periodically. That's not how it's supposed to be used.
 */

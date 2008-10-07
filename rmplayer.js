@@ -1,20 +1,22 @@
 // Globals: DB, euc
 
+// Usage: new RMPlayer('embed#realplayer, object#realplayer', function() { play_next_code(); })
 var RMPlayer = function(id, playnext) {
     id = $(id);
 
     // Loop through all objects and find something that has the required functions
     for (var i=0, l=id.length; i<l && !this.hasReal; i++) {
         this.player = $(id).get(i);
-        try { this.player.GetPlayState(); this.hasReal = 1; }
+        try { this.player.GetPlayState(); this.hasReal = 1; }       // RealPlayer is the object that has .GetPlayState()
         catch(e) { this.hasReal = 0; }
     }
-    if (!this.hasReal) {
+    if (!this.hasReal) {                                            // If we don't have RealPlayer, report error
         $(id).replaceWith("Browser does not support RealPlayer. Songs won't play continuously.");
     } else {
-        this.isPlaying = 0;
-        this.playnext = playnext;
-        this.justStarted = 0;
+        this.isPlaying = 0;         // 1 if the player is currently playing
+        this.playnext = playnext;   // Function to call to play next song
+        this.justStarted = 0;       // 1 if within 1st few seconds of song having started. Don't playnext() if justStarted and song still hasn't loaded
+        this.cache = {};            // cache song json info
         var that = this;
         this.skipAds = function() { that.player.DoNextEntry(); };
         this._playcheck = function() {
@@ -24,6 +26,7 @@ var RMPlayer = function(id, playnext) {
             }
             that.justStarted = 0;
         };
+        this.player.SetWantErrors(1);
     }
 };
 
@@ -34,7 +37,7 @@ $.extend(RMPlayer.prototype, {
         if (song) {
             var that = this;
             $.getJSON('/' + DB.lang + '/' + euc(song) + '/json', function(data) {
-                that.data = data;
+                that.data = that.cache[song] = that.cache[song] ? $.merge(that.cache[song], data) : data;
                 if (data.real.length) { that._rmplay(data.real.shift()); }
                 else { that.playnext(); }
             });
@@ -55,10 +58,12 @@ $.extend(RMPlayer.prototype, {
         this.isPlaying = 0;
         $('.click_pause').hide(); $('.click_play').show();
     },
-    vol:  function(incr) {
-        var v = this.player.GetVolume() + incr;
-        if (v < 0) { v = 0; }
-        else if (v > 100) { v = 100; }
+    vol:  function(percent) {
+        var v = this.player.GetVolume(),
+            incr = Math.round(percent * v);
+        if (incr === 0) { incr = percent < 0 ? -1 : percent > 0 ? +1 : 0; }
+        v = v + incr;
+        v = v < 0 ? 0 : v > 100 ? 100 : v;
         this.player.SetVolume(v);
         $("#volume").html(v);
     },
@@ -69,3 +74,19 @@ $.extend(RMPlayer.prototype, {
     }
 });
 
+// Merge two objects with similar structure. Very conservative. Does not change the first object if it's already filled, or if there's ANY incompatibility.
+$.merge = function(a,b) {
+    if (typeof a == "object" && typeof b == "object") {
+        if (a instanceof Array && b instanceof Array) {
+            for (var i=0, l=b.length; i<l; i++) {
+                if ($.inArray(b[i], a) < 0) { a.push(b[i]); }
+            }
+        } else {
+            for (var key in b) { if (b.hasOwnProperty(key)) {
+                if (!a[key]) { a[key] = b[key]; }
+                else { $.merge(a[key], b[key]); }
+            } }
+        }
+    }
+    return a;
+};
