@@ -37,7 +37,7 @@ $.extend(RMPlayer.prototype, {
         if (song) {
             var that = this;
             $.getJSON('/' + DB.lang + '/' + euc(song) + '/json', function(data) {
-                that.data = that.cache[song] = that.cache[song] ? $.merge(that.cache[song], data) : data;
+                that.data = that.cache[song] = that.cache[song] ? $.combine(that.cache[song], data) : data;
                 if (data.real.length) { that._rmplay(data.real.shift()); }
                 else { that.playnext(); }
             });
@@ -74,8 +74,8 @@ $.extend(RMPlayer.prototype, {
     }
 });
 
-// Merge two objects with similar structure. Very conservative. Does not change the first object if it's already filled, or if there's ANY incompatibility.
-$.merge = function(a,b) {
+// Combine two objects with similar structure. Very conservative. Does not change the first object if it's already filled, or if there's ANY incompatibility.
+$.combine = function(a,b) {
     if (typeof a == "object" && typeof b == "object") {
         if (a instanceof Array && b instanceof Array) {
             for (var i=0, l=b.length; i<l; i++) {
