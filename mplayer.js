@@ -91,7 +91,9 @@ function MPlayer(lang) {
     $.get('/songs/' + DB.lang + '.jsz', function(s) {
         DB.loadsong(s);
         $('#loading').hide();
+        $('#search_label').show();
         $('#search').show().focus();
+        // Note: Do NOT do a setInterval to check document.location.hash periodically. That's not how it's supposed to be used.
         if (document.location.hash) { View.hashsearch(); }
     });
     // TODO: Implement 'popular' for carnatic
@@ -101,8 +103,8 @@ function MPlayer(lang) {
             $.getJSON('/db/song/popular.' + lang, function(data) {
                 $.each(data, function(i, v) {
                     var movie = v.movie.s(/\s*\(\d\d*\)\s*/, ''), ms = movie + '~' + v.song;
-                    $('#popular .songs').append(View.song(ms));
                     Player.cache[ms] = { movie: movie, song: v.song, html: [v.link], real: [], lyrics: [] };
+                    $('#popular .songs').append(View.song(ms));
                 });
                 if (!document.location.hash) { $('#popular').showTab(); }
             });
@@ -120,8 +122,3 @@ onErr(function(obj, fn, err, args) {
 }, SongDb, RMPlayer, View, StarDb, init, MPlayer);
 
 init();
-
-/*
-    Notes:
-    # Do NOT do a setInterval to check document.location.hash periodically. That's not how it's supposed to be used.
-*/
