@@ -3,6 +3,7 @@
 // Usage: new RMPlayer('embed#realplayer, object#realplayer', function() { play_next_code(); })
 var RMPlayer = function(id, playnext) {
     id = $(id);
+    this.cache = {};                // cache song json info
 
     // Loop through all objects and find something that has the required functions
     for (var i=0, l=id.length; i<l && !this.hasReal; i++) {
@@ -11,12 +12,11 @@ var RMPlayer = function(id, playnext) {
         catch(e) { this.hasReal = 0; }
     }
     if (!this.hasReal) {                                            // If we don't have RealPlayer, report error
-        $(id).replaceWith("Browser does not support RealPlayer. Songs won't play continuously.");
+        $(id).replaceWith('Install <a href="http://www.realplayer.com/">RealPlayer</a> or <a href="http://www.free-codecs.com/download/real_Alternative.htm">Real Alternative</a> to play songs continuously.');
     } else {
         this.isPlaying = 0;         // 1 if the player is currently playing
         this.playnext = playnext;   // Function to call to play next song
         this.justStarted = 0;       // 1 if within 1st few seconds of song having started. Don't playnext() if justStarted and song still hasn't loaded
-        this.cache = {};            // cache song json info
         var that = this;
         this.skipAds = function() { that.player.DoNextEntry(); };
         this._playcheck = function() {
@@ -65,7 +65,7 @@ $.extend(RMPlayer.prototype, {
         v = v + incr;
         v = v < 0 ? 0 : v > 100 ? 100 : v;
         this.player.SetVolume(v);
-        $("#volume").html(v);
+        $('#volume').html(v);
     },
     seek: function(incr) {
         var v = this.player.GetPosition() + incr * 1000;
@@ -76,7 +76,7 @@ $.extend(RMPlayer.prototype, {
 
 // Combine two objects with similar structure. Very conservative. Does not change the first object if it's already filled, or if there's ANY incompatibility.
 $.combine = function(a,b) {
-    if (typeof a == "object" && typeof b == "object") {
+    if (typeof a == 'object' && typeof b == 'object') {
         if (a instanceof Array && b instanceof Array) {
             for (var i=0, l=b.length; i<l; i++) {
                 if ($.inArray(b[i], a) < 0) { a.push(b[i]); }

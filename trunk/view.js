@@ -17,9 +17,10 @@ var View = {
     // song('movie~song'): Converts it to <div class='play'><a class='song'>song</a> | <a class='movie'>movie</a></div>
     song: function(str) {
         var ms = str.replace('"', '&quot;').split('~'),
-            url = '/' + DB.lang + '/' + str + '/play" target="newsong';
+            cache = window.Player && Player.cache ? Player.cache[str] : 0,
+            url = cache && cache.html.length > 0 ? cache.html[0] : '/' + DB.lang + '/' + str + '/play';
         return '<div class="play" song="' + str + '">' +
-                (ms[1] ? '<a class="getsongs" href="#">' + ms[0] + '</a> | <a class="song" href="' + url + '">' + ms[1] + '</a>'
+                (ms[1] ? '<a class="getsongs" href="#">' + ms[0] + '</a> | <a target="_blank" class="song" href="' + url + '">' + ms[1] + '</a>'
                        :  '<a class="song" href="' + url + '">' + ms[0] + '</a>') +
                '</div>';
     },
@@ -84,7 +85,7 @@ var View = {
         val = val.replace(/^\s*/, '').replace(/\s*$/, '');                      // Get the val and trim spaces
         if (val !== this.lastsearch) {                                          // Trigger change event only if the string has changed
             this.lastsearch = val;                                              // Reset value of last search
-            document.location.hash = '#' + val;
+            if (!$('#'+val).length) { document.location.hash = '#' + val; }     // IE jumps to an ID when you set the location.hash. So check that there isn't such an ID first, before jumping
             this.clearsearch();
             var command = this.lastsearch.match(/^(movie|year|music|actor|lyrics):(..*)$/);
             if (command) {
@@ -127,12 +128,13 @@ var View = {
         this.menuElement = target.parent();                                                                 // Save the .play parent for future reference (used by View.addstar)
         var song = target.parent().attr('song'),
             ms = song.split('~'),
-            offset = target.offset();
+            offset = target.offset(),
+            cache = window.Player && Player.cache ? Player.cache[song] : 0;
         offset.left += 10;                                                                                  // Show the menu 10px to the right of the song's left edge
         offset.top += target.height();
         $('#Star, #Info').attr('song', song);                                                               // Set the HREFs directly, to avoid popup blockers
         $('#Download'   ).attr('href', '/' + DB.lang + '/' + euc(song) + '/download');
-        $('#Popup'      ).attr('href', Player.cache[song].html.shift() || '/' + DB.lang + '/' + euc(song) + '/play');
+        $('#Popup'      ).attr('href',  cache ? cache.html[0] : '/' + DB.lang + '/' + euc(song) + '/play');
         $('#Mail'       ).attr('href', '/mplayer-mail.html?lang=' + DB.lang + '&movie=' + euc(ms[0]) + '&song=' + euc(ms[1]));
         $('#menu').css(offset).show();
         var that = this;
@@ -203,18 +205,18 @@ var View = {
     },
 
     // View.searchInit(): Initialises Google AJAX search objects
-    searchInit: function() {
+    searchInit: function() { if (window.google) {
         this.video_search = new google.search.VideoSearch();
         this.image_search = new google.search.ImageSearch();
         this.image_search.setRestriction(google.search.ImageSearch.RESTRICT_IMAGESIZE, ["medium", "large", "xlarge", "xxlarge", "huge"]);
-    },
+    } },
 
     // View.showInfo(song): Shows information about song on the info tab
-    showInfo: function(song) {
+    showInfo: function(song) { if (window.google) {
         $('#info .header').html(this.song(song));
         $('#info').showTab();
         $('#info-videos,#info-images,#info-lyrics').html(this.loadingHTML);
         if (this.video_search) { trySearch(song.replace('~', ' '), trySearch(song.replace(/~.*/, '')))($('#info-videos'), this.video_search, 6); }
         if (this.image_search) { trySearch(song.replace('~', ' '), trySearch(song.replace(/~.*/, '')))($('#info-images'), this.image_search, 6); }
-    }
+    } }
 };
