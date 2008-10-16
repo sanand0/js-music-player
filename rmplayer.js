@@ -12,7 +12,7 @@ var RMPlayer = function(id, playnext) {
         catch(e) { this.hasReal = 0; }
     }
     if (!this.hasReal) {                                            // If we don't have RealPlayer, report error
-        $(id).replaceWith('Install <a href="http://www.realplayer.com/">RealPlayer</a> or <a href="http://www.free-codecs.com/download/real_Alternative.htm">Real Alternative</a> to play songs continuously.');
+        $(id).replaceWith('Install <a href="http://www.realplayer.com/">RealPlayer</a> or <a href="http://www.free-codecs.com/real_Alternative_download.htm">Real Alternative</a> to play songs continuously.');
     } else {
         this.isPlaying = 0;         // 1 if the player is currently playing
         this.playnext = playnext;   // Function to call to play next song

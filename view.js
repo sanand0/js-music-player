@@ -21,7 +21,7 @@ var View = {
             url = cache && cache.html.length > 0 ? cache.html[0] : '/' + DB.lang + '/' + str + '/play';
         return '<div class="play" song="' + str + '">' +
                 (ms[1] ? '<a class="getsongs" href="#">' + ms[0] + '</a> | <a target="_blank" class="song" href="' + url + '">' + ms[1] + '</a>'
-                       :  '<a class="song" href="' + url + '">' + ms[0] + '</a>') +
+                       :  '<a class="song" target="_blank" href="' + url + '">' + ms[0] + '</a>') +
                '</div>';
     },
 

@@ -10,16 +10,18 @@ $.fn.shuffle = function() {
 };
 
 function init() {
-    $('#search').focus(function(e) { $(this).select(); })                       // Select on focus
+    $('#search').focus( function(e) { $(this).select(); })                      // Select on focus
                 .keyup( function(e) { $(this).trigger('change'); })             // Fire onchange on keyup
                 .change(function(e) { View.search($(this).val()); });           // If the search string has changed, refresh the search
     var ev = function (e) { e.preventDefault(); return $(e.target); };
+    var headerHidden = 0;
     $('#tabContent,#playlist').click(function(e) { var target = $(e.target);
         if (target.is('.movie'))   { $('#search').val('movie:' + target.text()).trigger('change'); e.preventDefault(); }
         if (target.is('.year'))    { $('#search').val('year:'  + target.text()).trigger('change'); e.preventDefault(); }
         if (target.is('.music'))   { $('#search').val('music:' + target.text()).trigger('change'); e.preventDefault(); }
         if (target.is('.getsongs')){ $('#search').val('^'+ target.text() + '~').trigger('change'); e.preventDefault(); }
         if (target.is('.shuffle')) { $('.activetab .play').shuffle().slice(0,20).each(function() { View.addplaylist($(this)); }); }
+        if (target.is('.song') && !headerHidden) { $('h1').hide(1000); headerHidden = 1; }      // Any time a song is clicked, hide the heading to get more space
     });
     $('#playlist'  ).click(function(e) { var target = $(e.target);
         if (target.is('.song') && Player.hasReal) { View.playpause(target.parent()); e.preventDefault(); }
@@ -91,8 +93,7 @@ function MPlayer(lang) {
     $.get('/songs/' + DB.lang + '.jsz', function(s) {
         DB.loadsong(s);
         $('#loading').hide();
-        $('#search_label').show();
-        $('#search').show().focus();
+        $('#searchbox').show().focus();
         // Note: Do NOT do a setInterval to check document.location.hash periodically. That's not how it's supposed to be used.
         if (document.location.hash) { View.hashsearch(); }
     });
@@ -103,14 +104,14 @@ function MPlayer(lang) {
             $.getJSON('/db/song/popular.' + lang, function(data) {
                 $.each(data, function(i, v) {
                     var movie = v.movie.s(/\s*\(\d\d*\)\s*/, ''), ms = movie + '~' + v.song;
-                    Player.cache[ms] = { movie: movie, song: v.song, html: [v.link], real: [], lyrics: [] };
+                    Player.cache[ms] = { movie: movie, song: v.song, html: ['http://www.musicindiaonline.com' + v.link], real: [], lyrics: [] };
                     $('#popular .songs').append(View.song(ms));
                 });
                 if (!document.location.hash) { $('#popular').showTab(); }
             });
         }
     } else {
-        $('#results').showTab();
+        $('#recent').showTab();
     }
     View.refreshrecent();
 }
