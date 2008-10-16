@@ -1,13 +1,27 @@
 // Globals: DB, Player, Star, drag, euc, trysearch, google
 
-$.fn.showTab = function() {
-    var that = this[0], id;
-    $('.tab').each(function() {
-        if (that == this) { id = $(this).show().addClass   ('activetab').attr('id'); $('#show_' + id).addClass   ('activetab'); }
-        else              { id = $(this).hide().removeClass('activetab').attr('id'); $('#show_' + id).removeClass('activetab'); }
-    });
-    return this;
-};
+$.extend($.fn, {
+    showTab: function() {
+        var that = this[0], id;
+        $('.tab').each(function() {
+            if (that == this) { id = $(this).show().addClass   ('activetab').attr('id'); $('#show_' + id).addClass   ('activetab'); }
+            else              { id = $(this).hide().removeClass('activetab').attr('id'); $('#show_' + id).removeClass('activetab'); }
+        });
+        return this;
+    },
+
+    makeCurrent: function() {
+        this.addClass('current');
+        // $('#properties').remove().appendTo(this).show();
+        return this;
+    },
+
+    removeCurrent: function() {
+        this.removeClass('current');
+        // $('#properties').hide();
+        return this;
+    }
+});
 
 var View = {
     removeSongHTML: '<a href="#" title="Remove this song" class="remove">x</a> ',   // A HTML fragment that's used to remove a song from a list.
@@ -180,28 +194,28 @@ var View = {
     // View.playpause(): Equivalent of pressing the "Play" or "Pause" button.
     //      Pauses if a song is played. Plays current song if it exists. If not, plays first song on playlist.
     playpause: function(el) {
-        if (el) {                                                                       // If user had clicked on a song
-            if (!el.is('.current')) {                                                   //  and it's not the currently playing song,
-                $('#playlist .current').removeClass('current');                         //      Remove the current tag from the previous song
-                Player.play(el.addClass('current').attr('song'));                       //      Play the song, and mark it as current
-                this.notify(el, 'Playing song');                                        //      Tell the user the song is playing
-            } else if (!Player.isPlaying) { Player.play(); }                            //  If it's the currently playing element, but the player is paused, restart it
-            else { this.notify(el, 'Song is already playing'); }                        //  If it's the currently playing element and the player is already playing it, tell the user
+        if (el) {                                                               // If user had clicked on a song
+            if (!el.is('.current')) {                                           //  and it's not the currently playing song,
+                $('#playlist .current').removeCurrent();                        //      Remove the current tag from the previous song
+                Player.play(el.makeCurrent().attr('song'));                     //      Play the song, and mark it as current
+                this.notify(el, 'Playing song');                                //      Tell the user the song is playing
+            } else if (!Player.isPlaying) { Player.play(); }                    //  If it's the currently playing element, but the player is paused, restart it
+            else { this.notify(el, 'Song is already playing'); }                //  If it's the currently playing element and the player is already playing it, tell the user
         }
-        else if (Player.isPlaying) { Player.pause(); }                                  // If user had pressed 'P' or the pause control, pause it
-        else {                                                                          // If user had pressed 'P' or the play control
+        else if (Player.isPlaying) { Player.pause(); }                          // If user had pressed 'P' or the pause control, pause it
+        else {                                                                  // If user had pressed 'P' or the play control
             var playlist = $('#playlist .play');
-            if (playlist.is('.current')) { Player.play(); }                             //  Play the song if there's something current
-            else { Player.play(playlist.eq(0).addClass('current').attr('song')); }      //  If not, play the first song
+            if (playlist.is('.current')) { Player.play(); }                     //  Play the song if there's something current
+            else { Player.play(playlist.eq(0).makeCurrent().attr('song')); }    //  If not, play the first song
         }
     },
 
     // View.playnext(): Plays the next song on the playlist. If there's no current song, plays the first song. If there's no next song, stops playing.
     playnext: function() {
         var current = $('#playlist .current').eq(0);
-        if (!current.length) { Player.play($('#playlist .play').eq(0).addClass('current').attr('song')); }
+        if (!current.length) { Player.play($('#playlist .play').eq(0).makeCurrent().attr('song')); }
         else if (!current.next().length) { Player.pause(); }
-        else { Player.play(current.removeClass('current').next().addClass('current').attr('song')); }
+        else { Player.play(current.removeCurrent().next().makeCurrent().attr('song')); }
     },
 
     // View.searchInit(): Initialises Google AJAX search objects

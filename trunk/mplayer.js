@@ -21,7 +21,7 @@ function init() {
         if (target.is('.music'))   { $('#search').val('music:' + target.text()).trigger('change'); e.preventDefault(); }
         if (target.is('.getsongs')){ $('#search').val('^'+ target.text() + '~').trigger('change'); e.preventDefault(); }
         if (target.is('.shuffle')) { $('.activetab .play').shuffle().slice(0,20).each(function() { View.addplaylist($(this)); }); }
-        if (target.is('.song') && !headerHidden) { $('h1').hide(1000); headerHidden = 1; }      // Any time a song is clicked, hide the heading to get more space
+        if (target.is('.song') && !headerHidden) { setTimeout(function() { $('h1').hide(1000)}, 2000); headerHidden = 1; } // Any time a song is clicked, hide the heading to get more space
     });
     $('#playlist'  ).click(function(e) { var target = $(e.target);
         if (target.is('.song') && Player.hasReal) { View.playpause(target.parent()); e.preventDefault(); }
