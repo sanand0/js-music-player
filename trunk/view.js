@@ -12,7 +12,8 @@ $.extend($.fn, {
 
     makeCurrent: function() {
         this.addClass('current');
-        // $('#properties').remove().appendTo(this).show();
+        $('#properties .find-video').attr("song", this.attr("song"));
+        $('#properties').remove().appendTo(this).show();
         return this;
     },
 
@@ -146,7 +147,7 @@ var View = {
             cache = window.Player && Player.cache ? Player.cache[song] : 0;
         offset.left += 10;                                                                                  // Show the menu 10px to the right of the song's left edge
         offset.top += target.height();
-        $('#Star, #Info').attr('song', song);                                                               // Set the HREFs directly, to avoid popup blockers
+        $('#menu #Star, #menu .find-video').attr('song', song);                                             // Set the HREFs directly, to avoid popup blockers
         $('#Download'   ).attr('href', '/' + DB.lang + '/' + euc(song) + '/download');
         $('#Popup'      ).attr('href',  cache ? cache.html[0] : '/' + DB.lang + '/' + euc(song) + '/play');
         $('#Mail'       ).attr('href', '/mplayer-mail.html?lang=' + DB.lang + '&movie=' + euc(ms[0]) + '&song=' + euc(ms[1]));
@@ -225,12 +226,16 @@ var View = {
         this.image_search.setRestriction(google.search.ImageSearch.RESTRICT_IMAGESIZE, ["medium", "large", "xlarge", "xxlarge", "huge"]);
     } },
 
-    // View.showInfo(song): Shows information about song on the info tab
-    showInfo: function(song) { if (window.google) {
+    // View.showVideo(song): Shows information about song on the info tab
+    showVideo: function(song) {
         $('#info .header').html(this.song(song));
         $('#info').showTab();
         $('#info-videos,#info-images,#info-lyrics').html(this.loadingHTML);
-        if (this.video_search) { trySearch(song.replace('~', ' '), trySearch(song.replace(/~.*/, '')))($('#info-videos'), this.video_search, 6); }
-        if (this.image_search) { trySearch(song.replace('~', ' '), trySearch(song.replace(/~.*/, '')))($('#info-images'), this.image_search, 6); }
-    } }
+        if (window.google) {
+            if (this.video_search) { trySearch(song.replace('~', ' '), trySearch(song.replace(/~.*/, '')))($('#info-videos'), this.video_search, 6); }
+            if (this.image_search) { trySearch(song.replace('~', ' '), trySearch(song.replace(/~.*/, '')))($('#info-images'), this.image_search, 6); }
+        } else {
+            $('#info-videos,#info-images,#info-lyrics').html('Unable to load.');
+        }
+    }
 };

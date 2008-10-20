@@ -28,10 +28,10 @@ function init() {
         if (target.is('.remove'))  { target.parent().remove(); e.preventDefault(); }
         if (target.is('.clear'))   { View.clearplaylist(); e.preventDefault(); }
     });
+    $(             ).click(function(e) { var target = $(e.target); if (target.is('.find-video')) { View.showVideo(target.attr('song')); e.preventDefault(); } });
     $('#tabContent').click(function(e) { var target = $(e.target); if (target.is('.song') && !DB.mp3 && Player.hasReal) { View.addplaylist(target.parent()); e.preventDefault(); } });
     $('#favourites').click(function(e) { var target = $(e.target); if (target.is('.remove'))  { View.removestar(target.parent()); e.preventDefault(); } });
     $('#Star'      ).click(function(e) { var target = ev(e); View.addstar(target.attr('song')); });
-    $('#Info'      ).click(function(e) { var target = ev(e); View.showInfo(target.attr('song')); });
     $('.control'   ).click(function(e) { var target = ev(e); if (Player.hasReal) { View.playpause(); } });
     $('.showtab'   ).click(function(e) { var target = ev(e); $('#' + target.attr('id').replace('show_', '')).showTab(); });
     $('#changeuser').click(function(e) { var target = ev(e); $('#loggedinmsg').hide(); $('#changeloginmsg').show(); $('#getuser').focus().select(); });
@@ -57,11 +57,11 @@ function init() {
     $().keypress(function(e) {
         if (Player.hasReal && !$(e.target).is('input,textarea') && !e.ctrlKey && !e.altKey && !e.metaKey) {
             var code = e.charCode || e.keyCode;
-            if (code ==  80 || code == 112) { View.playpause(); e.preventDefault(); }
-            if (code ==  43 || code ==  61) { Player.vol(0.20);   e.preventDefault(); }
-            if (code ==  45 || code ==  95) { Player.vol(-0.20);  e.preventDefault(); }
-            if (code ==  46 || code ==  62) { Player.seek(10);  e.preventDefault(); }
-            if (code ==  44 || code ==  60) { Player.seek(-10); e.preventDefault(); }
+            if (code ==  80 || code == 112) { View.playpause();   e.preventDefault(); }
+            if (code ==  43 || code ==  61) { Player.vol ( 0.20); e.preventDefault(); }
+            if (code ==  45 || code ==  95) { Player.vol (-0.17); e.preventDefault(); }
+            if (code ==  46 || code ==  62) { Player.seek( 10  ); e.preventDefault(); }
+            if (code ==  44 || code ==  60) { Player.seek(-10  ); e.preventDefault(); }
             if (code ==  27)                { View.hideMenu(); }
         }
     });

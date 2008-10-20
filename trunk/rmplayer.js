@@ -8,7 +8,7 @@ var RMPlayer = function(id, playnext) {
     // Loop through all objects and find something that has the required functions
     for (var i=0, l=id.length; i<l && !this.hasReal; i++) {
         this.player = $(id).get(i);
-        try { this.player.GetPlayState(); this.hasReal = 1; }       // RealPlayer is the object that has .GetPlayState()
+        try { this.player.GetPlayState(); this.player.DoStop(); this.player.DoPlay(); this.hasReal = 1; } // RealPlayer is the object that has the required functions.
         catch(e) { this.hasReal = 0; }
     }
     if (!this.hasReal) {                                            // If we don't have RealPlayer, report error
