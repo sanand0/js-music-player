@@ -1,7 +1,7 @@
 // Globals: DB, euc
 
 // Usage: new RMPlayer('embed#realplayer, object#realplayer', function() { play_next_code(); })
-var RMPlayer = function(id, playnext) {
+var RMPlayer = function(id, handle) {
     id = $(id);
     this.cache = {};                // cache song json info
 
@@ -14,17 +14,26 @@ var RMPlayer = function(id, playnext) {
     if (!this.hasReal) {                                            // If we don't have RealPlayer, report error
         $(id).replaceWith('Install <a href="http://www.realplayer.com/">RealPlayer</a> or <a href="http://www.free-codecs.com/real_Alternative_download.htm">Real Alternative</a> to play songs continuously.');
     } else {
+        this.handle = function(fn) {
+            if (typeof(handle[fn]) == "function") {
+                handle[fn].apply(this, Array.prototype.slice.call(arguments, 1));
+            }
+        };
         this.isPlaying = 0;         // 1 if the player is currently playing
-        this.playnext = playnext;   // Function to call to play next song
-        this.justStarted = 0;       // 1 if within 1st few seconds of song having started. Don't playnext() if justStarted and song still hasn't loaded
         var that = this;
         this.skipAds = function() { that.player.DoNextEntry(); };
         this._playcheck = function() {
-            if (that.isPlaying && that.player.GetPlayState() === 0) {
-                if (that.justStarted && that.data.real.length) { that._rmplay(that.data.real.shift()); }
-                else { that.playnext(); }
+            if (that.isPlaying && that.player.GetPlayState() === 0) {       // If song is supposed to be playing and isn't,
+                var now = (new Date()).getTime();
+                if (now - that.justStarted > 15000) {                       // If song hasn't played in 15 seconds,
+                    if (now - that.justStarted < 30000) {                   // In the 1st 30 seconds, try playing the next realplayer song
+                        that.handle('failed', that.data);                   //  Notify the failure
+                        if (that.realIndex < that.data.real.length) {       //  Try same song from a different site
+                            that._rmplay(that.data.real[that.realIndex++]);
+                        } else { that.handle('playnext'); }                 //  Or move to next song
+                    } else { that.handle('playnext'); }                     // After 30 seconds, just move on to the next song.
+                }
             }
-            that.justStarted = 0;
         };
         this.player.SetWantErrors(1);
     }
@@ -37,9 +46,10 @@ $.extend(RMPlayer.prototype, {
         if (song) {
             var that = this;
             $.getJSON('/' + DB.lang + '/' + euc(song) + '/json', function(data) {
-                that.data = that.cache[song] = that.cache[song] ? $.combine(that.cache[song], data) : data;
-                if (data.real.length) { that._rmplay(data.real.shift()); }
-                else { that.playnext(); }
+                that.data = that.cache[song] = $.combine(that.cache[song] || {}, data);
+                that.realIndex = 0;
+                if (that.data.real.length) { that._rmplay(that.data.real[that.realIndex++]); }
+                else { that.handle('playnext'); }
             });
         } else if (this.player.CanPlay()) {
             this.player.DoPlay();
@@ -50,8 +60,9 @@ $.extend(RMPlayer.prototype, {
         this.player.SetSource(url);
         this.player.DoPlay();
         this.skipAds.schedule(1000, 1000, 1000);
-        this.justStarted = 1;
+        this.justStarted = (new Date()).getTime();
         this._playcheck.schedule(10000, -1000);
+        this.handle('playing', url);
     },
     pause: function() {
         this.player.DoPause();
@@ -84,9 +95,9 @@ $.combine = function(a,b) {
         } else {
             for (var key in b) { if (b.hasOwnProperty(key)) {
                 if (!a[key]) { a[key] = b[key]; }
-                else { $.merge(a[key], b[key]); }
+                else { $.combine(a[key], b[key]); }
             } }
         }
-    }
+    } else if (!a) { a = b; }
     return a;
 };

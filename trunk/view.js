@@ -13,6 +13,7 @@ $.extend($.fn, {
     makeCurrent: function() {
         this.addClass('current');
         $('#properties .find-video').attr("song", this.attr("song"));
+        $('#properties .playing-from').html('Playing...');
         $('#properties').remove().appendTo(this).show();
         return this;
     },
@@ -217,6 +218,12 @@ var View = {
         if (!current.length) { Player.play($('#playlist .play').eq(0).makeCurrent().attr('song')); }
         else if (!current.next().length) { Player.pause(); }
         else { Player.play(current.removeCurrent().next().makeCurrent().attr('song')); }
+    },
+
+    // View.currenturl(url): Sets the properties about the URL
+    currenturl: function(url) {
+        var host = url.split('/')[2].split('.');
+        $('#properties .playing-from').html(host.slice(host.length-2).join('.'));
     },
 
     // View.searchInit(): Initialises Google AJAX search objects
