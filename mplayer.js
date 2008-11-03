@@ -79,7 +79,11 @@ function init() {
     $.each('A B C D E F G H I J K L M N O P Q R S T U V W X Y Z'.split(' '), function(i, v) { $('#music-catalog').append('<a href="#" class="music catalog">' + v + '</a> '); });
     $.each('193. 194. 195. 196. 197. 198. 199. 200.'.split(' '), function(i, v) { $('#year-catalog').append('<a href="#" class="year catalog">' + v + '</a> '); });
 
-    window.Player = new RMPlayer('#rmplayer_ff,#rmplayer_ie', function() { View.playnext(); });
+    window.Player = new RMPlayer('#rmplayer_ff,#rmplayer_ie', {
+        'playnext'  : function() { View.playnext(); },
+        'playing'   : function(url) { View.currenturl(url); },
+        'failed'    : function(data) { View.notify($('#playlist .current'), "Failed to play song"); }
+    });
 }
 
 function MPlayer(lang) {
@@ -103,9 +107,9 @@ function MPlayer(lang) {
         if (DB.lang != 'carnatic') {
             $.getJSON('/db/song/popular.' + lang, function(data) {
                 $.each(data, function(i, v) {
-                    var movie = v.movie.s(/\s*\(\d\d*\)\s*/, ''), ms = movie + '~' + v.song;
-                    Player.cache[ms] = { movie: movie, song: v.song, html: ['http://www.musicindiaonline.com' + v.link], real: [], lyrics: [] };
-                    $('#popular .songs').append(View.song(ms));
+                    var ms = v.movie + '~' + v.song;
+                    Player.cache[ms] = v;
+                    $('#popular .songs').append(View.song(ms))
                 });
                 if (!document.location.hash) { $('#popular').showTab(); }
             });
