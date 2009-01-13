@@ -127,8 +127,8 @@ var View = {
 
     // View.addstar('movie~song'): If song is not already starred, star it.
     addstar: function(song) {
-        if (!$('#star .play[song=' + song + ']').length) {                                                  //  If the song is not already in the star list
-            $(this.song(song)).prepend(this.removeSongHTML).prependTo('#star');                             //      Add the song to the screen
+        if (!$('#favourites .play[song=' + song + ']').length) {                                            //  If the song is not already in the star list
+            $(this.song(song)).prepend(this.removeSongHTML).prependTo('#favourites .songs');                //      Add the song to the screen
             Star.add(song);                                                                                 //      Add the song to the server
             $('#show_favourites').css({backgroundColor: '#fdd', color: '#000'});                            //      Flash the favourites tab
             setTimeout(function() { $('#show_favourites').css({backgroundColor: '', color: ''}); }, 1000);
