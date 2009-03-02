@@ -101,7 +101,6 @@ var View = {
         val = val.replace(/^\s*/, '').replace(/\s*$/, '');                      // Get the val and trim spaces
         if (val !== this.lastsearch) {                                          // Trigger change event only if the string has changed
             this.lastsearch = val;                                              // Reset value of last search
-            if (!$('#'+val).length) { document.location.hash = '#' + val; }     // IE jumps to an ID when you set the location.hash. So check that there isn't such an ID first, before jumping
             this.clearsearch();
             var command = this.lastsearch.match(/^(movie|year|music|actor|lyrics):(..*)$/);
             if (command) {
