@@ -160,12 +160,12 @@ var View = {
     hideMenu: function() { $('#menu').hide(); delete this.menuElement; },
 
     // View.notify($('.play').eq(0), msg): Shows a message against a song (class='play') for a short while
-    notify: function(el, msg) {                                                         // Show a notification message right-aligned against the element
-        var notify = $('#notify').html(msg).css('width', 'auto').height(el.height()-2); // 2 = margin-top + margin-bottom + border-top + border-bottom
+    notify: function(el, msg) {                                                                 // Show a notification message right-aligned against the element
+        var notify = $('#notify').html(msg).css('width', 'auto').height(el.height()-2).show();  // 2 = margin-top + margin-bottom + border-top + border-bottom
         var offset = el.offset();
         offset.left += el.width() - notify.width() - 9;                                 // 8 = margin-left + margin-right + border-left + border-right + 1
         offset.top += 2;                                                                // 2 = border-top + 1
-        notify.css(offset).show();
+        notify.css(offset);
         this._hideNotify.schedule(1500);                                                // After 1.5 seconds, start fading out.
         return el;
     },

@@ -56,13 +56,20 @@ $.extend(RMPlayer.prototype, {
         }
     },
     _rmplay: function(url) {
-        this.player.DoStop();
-        this.player.SetSource(url);
-        this.player.DoPlay();
-        this.skipAds.schedule(1000, 1000, 1000);
-        this.justStarted = (new Date()).getTime();
-        this._playcheck.schedule(10000, -1000);
-        this.handle('playing', url);
+        try {
+            this.player.DoStop();
+            this.player.SetSource(url);
+            this.player.DoPlay();
+            this.skipAds.schedule(1000, 1000, 1000);
+            this.justStarted = (new Date()).getTime();
+            this._playcheck.schedule(10000, -1000);
+            this.handle('playing', url);
+        } catch(err) {
+            // TODO: Check if hasReal is in fact 0 when being called
+            if (typeof err == 'string') { fn += '%09' + err; }
+            else if (typeof err == 'object') { for (var i in err) { if (1) { fn += '%09' + i + '=' + err[i]; } } }
+            $.get('/e/log.pl?f=newmplayer&m=$browser~hasReal=' + this.hasReal + '. ' + fn);
+        }
     },
     pause: function() {
         this.player.DoPause();

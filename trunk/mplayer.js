@@ -1,4 +1,6 @@
-// Globals: DB, Player, RMPlayer, SongDb, Star, StarDb, View, onErr
+// Globals: DB, Player, RMPlayer, SongDb, Star, StarDb, View, onErr, VERSION
+
+var VERSION = '2';
 
 // Knuth shuffle. Reorders the elements in a selection randomly.
 $.fn.shuffle = function() {
@@ -123,7 +125,7 @@ function MPlayer(lang) {
 onErr(function(obj, fn, err, args) {
     if (typeof err == 'string') { fn += '%09' + err; }
     else if (typeof err == 'object') { for (var i in err) { if (1) { fn += '%09' + i + '=' + err[i]; } } }
-    $.get('/e/log.pl?f=newmplayer&m=$browser~' + fn.substr(0,500));
+    $.get('/e/log.pl?f=newmplayer&m=$browser~v' + VERSION + ': ' + fn);
 }, SongDb, RMPlayer, View, StarDb, init, MPlayer);
 
 init();
