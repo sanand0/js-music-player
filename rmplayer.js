@@ -65,10 +65,7 @@ $.extend(RMPlayer.prototype, {
             this._playcheck.schedule(10000, -1000);
             this.handle('playing', url);
         } catch(err) {
-            // TODO: Check if hasReal is in fact 0 when being called
-            if (typeof err == 'string') { fn += '%09' + err; }
-            else if (typeof err == 'object') { for (var i in err) { if (1) { fn += '%09' + i + '=' + err[i]; } } }
-            $.get('/e/log.pl?f=newmplayer&m=$browser~hasReal=' + this.hasReal + '. ' + fn);
+            // TODO: Check why this function is getting called, if it doesn't support RealPlayer
         }
     },
     pause: function() {

@@ -1,6 +1,6 @@
 // Globals: DB, Player, RMPlayer, SongDb, Star, StarDb, View, onErr, VERSION
 
-var VERSION = '2';
+var VERSION = '4';
 
 // Knuth shuffle. Reorders the elements in a selection randomly.
 $.fn.shuffle = function() {
