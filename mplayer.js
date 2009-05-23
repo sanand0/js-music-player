@@ -1,6 +1,6 @@
-// Globals: DB, Player, RMPlayer, SongDb, Star, StarDb, View, onErr, VERSION
+// Globals: DB, Player, RMPlayer, SongDb, Star, StarDb, View, onErr, VERSION, pageTracker (for Google Analytics)
 
-var VERSION = '4';
+var VERSION = '5';
 
 // Knuth shuffle. Reorders the elements in a selection randomly.
 $.fn.shuffle = function() {
@@ -97,7 +97,9 @@ function MPlayer(lang) {
     window.Star = new StarDb($.cookie.mail);
     $('#user').html($.cookie.mail || 'not logged in');
     $.get('/songs/' + DB.lang + '.jsz', function(s) {
+        $(document.body).trigger('data:loaded');
         DB.loadsong(s);
+        $(document.body).trigger('data:parsed');
         $('#loading').hide();
         $('#searchbox').show().focus();
         // Note: Do NOT do a setInterval to check document.location.hash periodically. That's not how it's supposed to be used.
@@ -123,9 +125,11 @@ function MPlayer(lang) {
 }
 
 onErr(function(obj, fn, err, args) {
-    if (typeof err == 'string') { fn += '%09' + err; }
-    else if (typeof err == 'object') { for (var i in err) { if (1) { fn += '%09' + i + '=' + err[i]; } } }
-    $.get('/e/log.pl?f=newmplayer&m=$browser~v' + VERSION + ': ' + fn);
+    var s = [];
+    if (typeof err == 'string') { s.push(err); }
+    else if (typeof err == 'object') { for (var i in err) { s.push(i + '=' + err[i]); } }
+    s = s.join('%09').substr(0,500);
+    if (window.pageTracker) { pageTracker._trackEvent("Error v" + VERSION, fn, s); }
 }, SongDb, RMPlayer, View, StarDb, init, MPlayer);
 
 init();
