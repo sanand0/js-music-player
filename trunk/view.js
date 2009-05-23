@@ -175,7 +175,8 @@ var View = {
 
     // View.addplaylist($('.play').eq(0)): Adds a song (class='play') to the playlist if it's not already in there. Starts playing if nothing's playing
     addplaylist: function(el) {
-        if (!$('#playlist .play[song=' + el.attr('song') + ']').length) {               // If the song is not already in the playlist
+        var re_song = el.attr('song').replace(/\W/g, '.');                              // Strip unsafe characters
+        if (!$('#playlist .play[song=~^' + re_song + ']').length) {                     // If the song is not already in the playlist
             var s = $(this.song(el.attr('song'))).prepend(this.removeSongHTML).         // Add a new .play element...
                 appendTo('#playlist .songs').mousedown(drag);                           // ... to the playlist, and make it draggable
             this.notify(el, 'Queued in playlist');                                      // Notify the user that the item has been added
